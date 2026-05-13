@@ -56,6 +56,9 @@ function StatCard({ icon: Icon, label, value, delta, tone = "primary" }: any) {
 }
 
 function Dashboard() {
+  const { primaryRole } = useAuth();
+  if (primaryRole === "student") return <StudentDashboard />;
+
   const students = useStudentStore((s) => s.students);
   const stats = deriveStats(students);
   const gradeDistribution = deriveGradeDistribution(students);
