@@ -3,12 +3,16 @@ import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Search } from "lucide-react";
-import { students, type RiskLevel } from "@/lib/mockData";
+import { Search, Trash2, RotateCcw } from "lucide-react";
+import { type RiskLevel } from "@/lib/mockData";
+import { useStudentStore } from "@/lib/studentStore";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AddStudentDialog } from "@/components/AddStudentDialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/students")({
   head: () => ({
@@ -27,6 +31,9 @@ function riskColor(r: RiskLevel) {
 }
 
 function StudentsPage() {
+  const students = useStudentStore((s) => s.students);
+  const removeStudent = useStudentStore((s) => s.removeStudent);
+  const resetToSeed = useStudentStore((s) => s.resetToSeed);
   const [q, setQ] = useState("");
   const [risk, setRisk] = useState<string>("all");
 
@@ -36,13 +43,25 @@ function StudentsPage() {
       const r = risk === "all" || s.risk === risk;
       return match && r;
     });
-  }, [q, risk]);
+  }, [q, risk, students]);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Students</h1>
-        <p className="text-sm text-muted-foreground">Search, filter and review every student in the cohort.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Students</h1>
+          <p className="text-sm text-muted-foreground">Add students manually and let the AI predict their performance.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => { resetToSeed(); toast.success("Reset to sample data"); }}
+          >
+            <RotateCcw className="mr-2 h-4 w-4" /> Reset
+          </Button>
+          <AddStudentDialog />
+        </div>
       </div>
 
       <Card className="border-border" style={{ boxShadow: "var(--shadow-card)" }}>
@@ -85,6 +104,7 @@ function StudentsPage() {
                 <TableHead className="text-right">Final</TableHead>
                 <TableHead>Predicted</TableHead>
                 <TableHead>Risk</TableHead>
+                <TableHead className="w-12" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,10 +124,20 @@ function StudentsPage() {
                       {s.risk}
                     </span>
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => { removeStudent(s.id); toast.success(`${s.name} removed`); }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">No students match your filters.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">No students match your filters.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

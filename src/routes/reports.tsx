@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Download, BarChart3, Users, TrendingUp, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { stats, students } from "@/lib/mockData";
+import { useStudentStore, deriveStats } from "@/lib/studentStore";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip,
 } from "recharts";
@@ -29,8 +29,11 @@ const reports = [
 ];
 
 function ReportsPage() {
+  const students = useStudentStore((s) => s.students);
+  const stats = deriveStats(students);
   const classData = ["CSE-A", "CSE-B", "ECE-A", "IT-A"].map((c) => {
     const list = students.filter((s) => s.className === c);
+    if (list.length === 0) return { class: c, avg: 0, attendance: 0 };
     return {
       class: c,
       avg: Math.round(list.reduce((a, s) => a + s.finalScore, 0) / list.length),

@@ -6,7 +6,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, TrendingUp, AlertTriangle, CalendarCheck, Sparkles, ArrowUpRight } from "lucide-react";
-import { stats, trendData, subjectAverages, gradeDistribution, students } from "@/lib/mockData";
+import { trendData, subjectAverages } from "@/lib/mockData";
+import { useStudentStore, deriveStats, deriveGradeDistribution } from "@/lib/studentStore";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,6 +53,9 @@ function StatCard({ icon: Icon, label, value, delta, tone = "primary" }: any) {
 }
 
 function Dashboard() {
+  const students = useStudentStore((s) => s.students);
+  const stats = deriveStats(students);
+  const gradeDistribution = deriveGradeDistribution(students);
   const topStudents = [...students].sort((a, b) => b.finalScore - a.finalScore).slice(0, 5);
 
   return (
