@@ -19,6 +19,9 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
+import { useAuth } from "@/lib/auth";
+import { StudentDashboard } from "@/components/StudentDashboard";
+
 const chartColors = ["var(--color-chart-1)", "var(--color-chart-2)", "var(--color-chart-3)", "var(--color-chart-4)", "var(--color-chart-5)", "var(--color-destructive)"];
 
 function StatCard({ icon: Icon, label, value, delta, tone = "primary" }: any) {
@@ -53,6 +56,9 @@ function StatCard({ icon: Icon, label, value, delta, tone = "primary" }: any) {
 }
 
 function Dashboard() {
+  const { primaryRole } = useAuth();
+  if (primaryRole === "student") return <StudentDashboard />;
+
   const students = useStudentStore((s) => s.students);
   const stats = deriveStats(students);
   const gradeDistribution = deriveGradeDistribution(students);

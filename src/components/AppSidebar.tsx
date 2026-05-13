@@ -11,17 +11,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuth, type AppRole } from "@/lib/auth";
 
-const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Students", url: "/students", icon: Users },
-  { title: "AI Predictions", url: "/predictions", icon: Brain },
-  { title: "Reports", url: "/reports", icon: FileBarChart },
+type Item = { title: string; url: string; icon: typeof LayoutDashboard; roles: AppRole[] };
+
+const items: Item[] = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: ["admin", "teacher", "student"] },
+  { title: "Students", url: "/students", icon: Users, roles: ["admin", "teacher"] },
+  { title: "AI Predictions", url: "/predictions", icon: Brain, roles: ["admin", "teacher"] },
+  { title: "Reports", url: "/reports", icon: FileBarChart, roles: ["admin", "teacher"] },
 ];
 
 export function AppSidebar() {
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
+  const { primaryRole } = useAuth();
   const isActive = (p: string) => currentPath === p;
+
+  const visible = items.filter((i) => !primaryRole || i.roles.includes(primaryRole));
 
   return (
     <Sidebar collapsible="icon">
@@ -44,7 +50,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {visible.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url}>
