@@ -4,14 +4,23 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useNavigate,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider, useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { LogOut, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 import appCss from "../styles.css?url";
+
+const PUBLIC_ROUTES = new Set(["/login"]);
 
 function NotFoundComponent() {
   return (
@@ -80,30 +89,88 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full" style={{ background: "var(--gradient-subtle)" }}>
-          <AppSidebar />
-          <div className="flex flex-1 flex-col">
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/70 px-4 backdrop-blur">
-              <SidebarTrigger />
-              <div className="flex flex-1 items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-semibold">EduInsight AI</h2>
-                  <p className="text-xs text-muted-foreground">AI-Based Student Performance Analysis</p>
-                </div>
-                <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs sm:flex">
-                  <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                  <span className="text-muted-foreground">Live model</span>
-                </div>
-              </div>
-            </header>
-            <main className="flex-1 p-4 md:p-8">
-              <Outlet />
-            </main>
-          </div>
-        </div>
+      <AuthProvider>
+        <AppShell />
         <Toaster />
-      </SidebarProvider>
+      </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+function AppShell() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isPublic = PUBLIC_ROUTES.has(pathname);
+
+  if (isPublic) return <Outlet />;
+
+  return <AuthenticatedShell />;
+}
+
+function AuthenticatedShell() {
+  const { user, loading, profile, primaryRole, signOut } = useAuth();
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/login" });
+  }, [loading, user, navigate]);
+
+  // Role-based access map
+  useEffect(() => {
+    if (!user || !primaryRole) return;
+    const allowedFor: Record<string, ("admin" | "teacher" | "student")[]> = {
+      "/": ["admin", "teacher", "student"],
+      "/students": ["admin", "teacher"],
+      "/predictions": ["admin", "teacher"],
+      "/reports": ["admin", "teacher"],
+    };
+    const allowed = allowedFor[pathname];
+    if (allowed && !allowed.includes(primaryRole)) {
+      navigate({ to: "/" });
+    }
+  }, [pathname, primaryRole, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const roleLabel =
+    primaryRole === "admin" ? "Admin" :
+    primaryRole === "teacher" ? "Teacher" :
+    primaryRole === "student" ? "Student" : "Member";
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full" style={{ background: "var(--gradient-subtle)" }}>
+        <AppSidebar />
+        <div className="flex flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/70 px-4 backdrop-blur">
+            <SidebarTrigger />
+            <div className="flex flex-1 items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold">EduInsight AI</h2>
+                <p className="text-xs text-muted-foreground">AI-Based Student Performance Analysis</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="hidden text-right sm:block">
+                  <p className="text-sm font-medium leading-none">{profile?.full_name || user.email}</p>
+                  <Badge variant="secondary" className="mt-1 text-[10px]">{roleLabel}</Badge>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => { signOut(); navigate({ to: "/login" }); }} aria-label="Sign out">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </header>
+          <main className="flex-1 p-4 md:p-8">
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
