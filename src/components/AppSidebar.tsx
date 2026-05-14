@@ -16,7 +16,7 @@ import { useAuth, type AppRole } from "@/lib/auth";
 type Item = { title: string; url: string; icon: typeof LayoutDashboard; roles: AppRole[] };
 
 const items: Item[] = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: ["admin", "teacher", "student"] },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["admin", "teacher", "student"] },
   { title: "Students", url: "/students", icon: Users, roles: ["admin", "teacher"] },
   { title: "AI Predictions", url: "/predictions", icon: Brain, roles: ["admin", "teacher"] },
   { title: "Reports", url: "/reports", icon: FileBarChart, roles: ["admin", "teacher"] },

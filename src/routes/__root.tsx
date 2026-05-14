@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 
 import appCss from "../styles.css?url";
 
-const PUBLIC_ROUTES = new Set(["/login"]);
+const PUBLIC_ROUTES = new Set(["/", "/about", "/features", "/contact", "/login"]);
 
 function NotFoundComponent() {
   return (
@@ -127,14 +127,14 @@ function AuthenticatedShell() {
   useEffect(() => {
     if (!user || !primaryRole) return;
     const allowedFor: Record<string, ("admin" | "teacher" | "student")[]> = {
-      "/": ["admin", "teacher", "student"],
+      "/dashboard": ["admin", "teacher", "student"],
       "/students": ["admin", "teacher"],
       "/predictions": ["admin", "teacher"],
       "/reports": ["admin", "teacher"],
     };
     const allowed = allowedFor[pathname];
     if (allowed && !allowed.includes(primaryRole)) {
-      navigate({ to: "/" });
+      navigate({ to: "/dashboard" });
     }
   }, [pathname, primaryRole, user, navigate]);
 
