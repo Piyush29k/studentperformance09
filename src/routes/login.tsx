@@ -26,7 +26,7 @@ function LoginPage() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/" });
+    if (!loading && user) navigate({ to: "/dashboard" });
   }, [user, loading, navigate]);
 
   const [tab, setTab] = useState<"signin" | "signup">("signin");
@@ -57,7 +57,7 @@ function LoginPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Welcome back");
-    navigate({ to: "/" });
+    navigate({ to: "/dashboard" });
   }
 
   async function handleSignUp(e: React.FormEvent) {
@@ -85,7 +85,7 @@ function LoginPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Account created", { description: "You're signed in." });
-    navigate({ to: "/" });
+    navigate({ to: "/dashboard" });
   }
 
   return (
