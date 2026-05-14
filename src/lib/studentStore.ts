@@ -18,8 +18,12 @@ function risk(score: number, attendance: number): RiskLevel {
 }
 
 export type NewStudentInput = {
+  regNo: string;
   name: string;
-  className: string;
+  branch: string;
+  semester: number;
+  subject: string;
+  subjectCode: string;
   attendance: number;
   assignment: number;
   quiz: number;
@@ -27,13 +31,12 @@ export type NewStudentInput = {
   participation: number;
 };
 
-export function buildStudent(input: NewStudentInput, idNum: number): Student {
+export function buildStudent(input: NewStudentInput): Student {
   const finalScore = Math.round(
     input.assignment * 0.2 + input.quiz * 0.2 + input.internal * 0.4 +
     input.participation * 0.1 + input.attendance * 0.1
   );
   return {
-    id: `STU${String(idNum)}`,
     ...input,
     finalScore,
     predictedGrade: grade(finalScore),
@@ -44,7 +47,7 @@ export function buildStudent(input: NewStudentInput, idNum: number): Student {
 interface StudentStore {
   students: Student[];
   addStudent: (input: NewStudentInput) => Student;
-  removeStudent: (id: string) => void;
+  removeStudent: (regNo: string) => void;
   resetToSeed: () => void;
 }
 
@@ -53,15 +56,14 @@ export const useStudentStore = create<StudentStore>()(
     (set, get) => ({
       students: seedStudents,
       addStudent: (input) => {
-        const nextNum = 1001 + get().students.length;
-        const s = buildStudent(input, nextNum);
-        set({ students: [s, ...get().students] });
+        const s = buildStudent(input);
+        set({ students: [s, ...get().students.filter((x) => x.regNo !== s.regNo)] });
         return s;
       },
-      removeStudent: (id) => set({ students: get().students.filter((s) => s.id !== id) }),
+      removeStudent: (regNo) => set({ students: get().students.filter((s) => s.regNo !== regNo) }),
       resetToSeed: () => set({ students: seedStudents }),
     }),
-    { name: "eduinsight-students" }
+    { name: "eduinsight-students-v2" }
   )
 );
 

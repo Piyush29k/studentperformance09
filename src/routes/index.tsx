@@ -174,13 +174,13 @@ function Dashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             {topStudents.map((s, i) => (
-              <div key={s.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
+              <div key={s.regNo} className="flex items-center gap-3 rounded-lg border border-border p-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                   {i + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="truncate text-sm font-medium">{s.name}</p>
-                  <p className="text-xs text-muted-foreground">{s.className} · {s.id}</p>
+                  <p className="text-xs text-muted-foreground">{s.branch} · Sem {s.semester} · {s.regNo}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold">{s.finalScore}%</p>

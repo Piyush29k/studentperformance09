@@ -39,7 +39,11 @@ function StudentsPage() {
 
   const filtered = useMemo(() => {
     return students.filter((s) => {
-      const match = s.name.toLowerCase().includes(q.toLowerCase()) || s.id.toLowerCase().includes(q.toLowerCase());
+      const t = q.toLowerCase();
+      const match =
+        s.name.toLowerCase().includes(t) ||
+        s.regNo.toLowerCase().includes(t) ||
+        s.subjectCode.toLowerCase().includes(t);
       const r = risk === "all" || s.risk === risk;
       return match && r;
     });
@@ -75,7 +79,7 @@ function StudentsPage() {
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name or ID…"
+                  placeholder="Search name, reg no, subject…"
                   className="pl-8 sm:w-64"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
@@ -98,7 +102,9 @@ function StudentsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Student</TableHead>
-                <TableHead>Class</TableHead>
+                <TableHead>Branch</TableHead>
+                <TableHead>Sem</TableHead>
+                <TableHead>Subject</TableHead>
                 <TableHead className="text-right">Attendance</TableHead>
                 <TableHead className="text-right">Internal</TableHead>
                 <TableHead className="text-right">Final</TableHead>
@@ -109,12 +115,17 @@ function StudentsPage() {
             </TableHeader>
             <TableBody>
               {filtered.map((s) => (
-                <TableRow key={s.id}>
+                <TableRow key={s.regNo}>
                   <TableCell>
                     <div className="font-medium">{s.name}</div>
-                    <div className="text-xs text-muted-foreground">{s.id}</div>
+                    <div className="text-xs text-muted-foreground">{s.regNo}</div>
                   </TableCell>
-                  <TableCell>{s.className}</TableCell>
+                  <TableCell>{s.branch}</TableCell>
+                  <TableCell>{s.semester}</TableCell>
+                  <TableCell>
+                    <div className="text-sm">{s.subject}</div>
+                    <div className="text-xs text-muted-foreground">{s.subjectCode}</div>
+                  </TableCell>
                   <TableCell className="text-right tabular-nums">{s.attendance}%</TableCell>
                   <TableCell className="text-right tabular-nums">{s.internal}</TableCell>
                   <TableCell className="text-right tabular-nums font-semibold">{s.finalScore}</TableCell>
@@ -129,7 +140,7 @@ function StudentsPage() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => { removeStudent(s.id); toast.success(`${s.name} removed`); }}
+                      onClick={() => { removeStudent(s.regNo); toast.success(`${s.name} removed`); }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -137,7 +148,7 @@ function StudentsPage() {
                 </TableRow>
               ))}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">No students match your filters.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={10} className="py-8 text-center text-sm text-muted-foreground">No students match your filters.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
