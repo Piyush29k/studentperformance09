@@ -1,9 +1,12 @@
 export type RiskLevel = "Low" | "Medium" | "High";
 
 export interface Student {
-  id: string;
+  regNo: string;
   name: string;
-  className: string;
+  branch: string;
+  semester: number;
+  subject: string;
+  subjectCode: string;
   attendance: number;
   assignment: number;
   quiz: number;
@@ -13,6 +16,18 @@ export interface Student {
   predictedGrade: string;
   risk: RiskLevel;
 }
+
+export const BRANCHES = ["CSE", "ECE", "IT", "ME", "EEE", "CIVIL"];
+export const SUBJECTS: { name: string; code: string }[] = [
+  { name: "Data Structures", code: "CS201" },
+  { name: "Operating Systems", code: "CS302" },
+  { name: "Database Systems", code: "CS305" },
+  { name: "Computer Networks", code: "CS401" },
+  { name: "Machine Learning", code: "CS502" },
+  { name: "Digital Electronics", code: "EC203" },
+  { name: "Signals & Systems", code: "EC301" },
+  { name: "Engineering Math", code: "MA101" },
+];
 
 const names = [
   "Aarav Sharma", "Diya Patel", "Vivaan Reddy", "Ananya Iyer", "Arjun Mehta",
@@ -39,7 +54,6 @@ function risk(score: number, attendance: number): RiskLevel {
   return "Low";
 }
 
-// Deterministic pseudo-random
 function seeded(i: number, salt: number) {
   const x = Math.sin(i * 9301 + salt * 49297) * 233280;
   return x - Math.floor(x);
@@ -54,10 +68,16 @@ export const students: Student[] = names.map((name, i) => {
   const finalScore = Math.round(
     assignment * 0.2 + quiz * 0.2 + internal * 0.4 + participation * 0.1 + attendance * 0.1
   );
+  const branch = BRANCHES[i % BRANCHES.length];
+  const subject = SUBJECTS[i % SUBJECTS.length];
+  const semester = (i % 8) + 1;
   return {
-    id: `STU${String(1001 + i)}`,
+    regNo: `${branch}${2024}${String(101 + i).padStart(3, "0")}`,
     name,
-    className: ["CSE-A", "CSE-B", "ECE-A", "IT-A"][i % 4],
+    branch,
+    semester,
+    subject: subject.name,
+    subjectCode: subject.code,
     attendance,
     assignment,
     quiz,

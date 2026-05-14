@@ -31,8 +31,9 @@ const reports = [
 function ReportsPage() {
   const students = useStudentStore((s) => s.students);
   const stats = deriveStats(students);
-  const classData = ["CSE-A", "CSE-B", "ECE-A", "IT-A"].map((c) => {
-    const list = students.filter((s) => s.className === c);
+  const branches = ["CSE", "ECE", "IT", "ME", "EEE", "CIVIL"];
+  const classData = branches.map((c) => {
+    const list = students.filter((s) => s.branch === c);
     if (list.length === 0) return { class: c, avg: 0, attendance: 0 };
     return {
       class: c,

@@ -11,17 +11,22 @@ import {
 } from "@/components/ui/select";
 import { Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { useStudentStore, buildStudent } from "@/lib/studentStore";
+import { useStudentStore, buildStudent, type NewStudentInput } from "@/lib/studentStore";
+import { BRANCHES, SUBJECTS } from "@/lib/mockData";
 
-const CLASSES = ["CSE-A", "CSE-B", "ECE-A", "IT-A"];
+const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export function AddStudentDialog() {
   const addStudent = useStudentStore((s) => s.addStudent);
-  const count = useStudentStore((s) => s.students.length);
+  const existing = useStudentStore((s) => s.students);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<NewStudentInput>({
+    regNo: "",
     name: "",
-    className: "CSE-A",
+    branch: "CSE",
+    semester: 1,
+    subject: SUBJECTS[0].name,
+    subjectCode: SUBJECTS[0].code,
     attendance: 80,
     assignment: 70,
     quiz: 70,
@@ -29,29 +34,36 @@ export function AddStudentDialog() {
     participation: 70,
   });
 
-  const preview = buildStudent(form, 1001 + count);
+  const preview = buildStudent({ ...form, regNo: form.regNo || "PREVIEW" });
 
-  function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
+  function update<K extends keyof NewStudentInput>(key: K, value: NewStudentInput[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  function handleSubjectChange(code: string) {
+    const subj = SUBJECTS.find((s) => s.code === code);
+    if (subj) setForm((f) => ({ ...f, subject: subj.name, subjectCode: subj.code }));
+  }
+
   function submit() {
-    if (!form.name.trim()) {
-      toast.error("Please enter student name");
-      return;
+    if (!form.name.trim()) return toast.error("Please enter student name");
+    if (!form.regNo.trim()) return toast.error("Please enter registration number");
+    if (existing.some((s) => s.regNo === form.regNo.trim())) {
+      return toast.error("Registration number already exists");
     }
-    const s = addStudent(form);
+    const s = addStudent({ ...form, regNo: form.regNo.trim() });
     toast.success(`${s.name} added`, {
       description: `Predicted grade ${s.predictedGrade} · ${s.risk} risk`,
     });
     setOpen(false);
     setForm({
-      name: "", className: "CSE-A",
+      regNo: "", name: "", branch: "CSE", semester: 1,
+      subject: SUBJECTS[0].name, subjectCode: SUBJECTS[0].code,
       attendance: 80, assignment: 70, quiz: 70, internal: 70, participation: 70,
     });
   }
 
-  const sliders: { key: keyof typeof form; label: string }[] = [
+  const sliders: { key: keyof NewStudentInput; label: string }[] = [
     { key: "attendance", label: "Attendance" },
     { key: "assignment", label: "Assignment Score" },
     { key: "quiz", label: "Quiz Score" },
@@ -77,6 +89,15 @@ export function AddStudentDialog() {
         <div className="grid gap-4 py-2">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
+              <Label htmlFor="regNo">Registration No.</Label>
+              <Input
+                id="regNo"
+                placeholder="e.g. CSE2024101"
+                value={form.regNo}
+                onChange={(e) => update("regNo", e.target.value.toUpperCase())}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="name">Student Name</Label>
               <Input
                 id="name"
@@ -86,11 +107,33 @@ export function AddStudentDialog() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Class</Label>
-              <Select value={form.className} onValueChange={(v) => update("className", v)}>
+              <Label>Branch</Label>
+              <Select value={form.branch} onValueChange={(v) => update("branch", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {BRANCHES.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Semester</Label>
+              <Select value={String(form.semester)} onValueChange={(v) => update("semester", Number(v))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Subject</Label>
+              <Select value={form.subjectCode} onValueChange={handleSubjectChange}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {SUBJECTS.map((s) => (
+                    <SelectItem key={s.code} value={s.code}>
+                      {s.code} — {s.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
