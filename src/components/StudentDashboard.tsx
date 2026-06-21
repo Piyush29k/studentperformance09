@@ -34,6 +34,24 @@ function grade(score: number) {
 export function StudentDashboard() {
   const { profile, user } = useAuth();
   const seed = hash(user?.id || "demo");
+  const initials = (profile?.full_name || user?.email || "ST")
+    .split(/\s+/)
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const regNo = `REG-${(seed % 90000 + 10000)}`;
+  const branches = ["CSE", "ECE", "ME", "CE", "IT"] as const;
+  const branch = branches[seed % branches.length];
+  const semester = (seed % 8) + 1;
+
+  const subjects = [
+    { code: "CS201", name: "Data Structures", score: rand(seed, 11, 55, 95) },
+    { code: "CS202", name: "Operating Systems", score: rand(seed, 12, 55, 95) },
+    { code: "MA201", name: "Discrete Math", score: rand(seed, 13, 55, 95) },
+    { code: "CS203", name: "DBMS", score: rand(seed, 14, 55, 95) },
+    { code: "EN201", name: "Technical Writing", score: rand(seed, 15, 60, 96) },
+  ];
 
   const attendance = rand(seed, 1, 65, 96);
   const assignment = rand(seed, 2, 55, 95);
