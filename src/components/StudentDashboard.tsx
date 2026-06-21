@@ -106,6 +106,61 @@ export function StudentDashboard() {
         </div>
       </section>
 
+      {/* Profile Card */}
+      <section>
+        <Card className="border-border" style={{ boxShadow: "var(--shadow-card)" }}>
+          <CardHeader>
+            <CardTitle>My Profile</CardTitle>
+            <CardDescription>Your student account details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <Avatar className="h-20 w-20 border border-border">
+                <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 gap-3 sm:grid-cols-2">
+                <ProfileRow icon={GraduationCap} label="Full Name" value={profile?.full_name || "—"} />
+                <ProfileRow icon={Mail} label="Email" value={user?.email || "—"} />
+                <ProfileRow icon={Hash} label="Reg. Number" value={regNo} />
+                <ProfileRow icon={Library} label="Branch / Semester" value={`${branch} · Sem ${semester}`} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Subjects Area */}
+      <section>
+        <Card className="border-border" style={{ boxShadow: "var(--shadow-card)" }}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-primary" /> My Subjects
+            </CardTitle>
+            <CardDescription>Performance across enrolled subjects this semester</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {subjects.map((s) => (
+              <div key={s.code} className="space-y-2 rounded-lg border border-border bg-accent/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{s.name}</p>
+                    <p className="text-xs text-muted-foreground">{s.code}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="font-mono">{grade(s.score)}</Badge>
+                    <span className="text-sm font-semibold tabular-nums">{s.score}%</span>
+                  </div>
+                </div>
+                <Progress value={s.score} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
+
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { icon: CalendarCheck, label: "Attendance", value: `${attendance}%` },
