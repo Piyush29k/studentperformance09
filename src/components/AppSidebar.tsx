@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Users, Brain, FileBarChart, GraduationCap, Sparkles } from "lucide-react";
+import { LayoutDashboard, Users, Brain, FileBarChart, GraduationCap, Sparkles, User, BookOpen } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +20,8 @@ const items: Item[] = [
   { title: "Students", url: "/students", icon: Users, roles: ["admin", "teacher"] },
   { title: "AI Predictions", url: "/predictions", icon: Brain, roles: ["admin", "teacher"] },
   { title: "Reports", url: "/reports", icon: FileBarChart, roles: ["admin", "teacher"] },
+  { title: "Profile", url: "/profile", icon: User, roles: ["student"] },
+  { title: "Subjects", url: "/subjects", icon: BookOpen, roles: ["student"] },
 ];
 
 export function AppSidebar() {
