@@ -9,27 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { Sparkles, Lightbulb, TrendingUp, CalendarCheck, BookOpen, Target, Mail, GraduationCap, Hash, Library } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { trendData } from "@/lib/mockData";
+import { useStudentSeed, getSubjects, getMetrics, finalScore, grade } from "@/lib/studentData";
 
-// Deterministic per-user mock performance, so each student account gets a stable view.
-function hash(str: string) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-function rand(seed: number, salt: number, min: number, max: number) {
-  const x = Math.sin(seed * 9301 + salt * 49297) * 233280;
-  const f = x - Math.floor(x);
-  return Math.round(min + f * (max - min));
-}
-
-function grade(score: number) {
-  if (score >= 90) return "A+";
-  if (score >= 80) return "A";
-  if (score >= 70) return "B";
-  if (score >= 60) return "C";
-  if (score >= 50) return "D";
-  return "F";
-}
 function ProfileRow({ icon: Icon, label, value }: { icon: typeof Mail; label: string; value: string }) {
   return (
     <div className="flex items-start gap-2 rounded-md border border-border bg-card p-3">
@@ -42,53 +23,37 @@ function ProfileRow({ icon: Icon, label, value }: { icon: typeof Mail; label: st
   );
 }
 
-
 export function StudentDashboard() {
   const { profile, user } = useAuth();
-  const seed = hash(user?.id || "demo");
+  const { seed, regNo, branch, semester } = useStudentSeed(user?.id);
   const initials = (profile?.full_name || user?.email || "ST")
     .split(/\s+/)
     .map((s) => s[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const regNo = `REG-${(seed % 90000 + 10000)}`;
-  const branches = ["CSE", "ECE", "ME", "CE", "IT"] as const;
-  const branch = branches[seed % branches.length];
-  const semester = (seed % 8) + 1;
 
-  const subjects = [
-    { code: "CS201", name: "Data Structures", score: rand(seed, 11, 55, 95) },
-    { code: "CS202", name: "Operating Systems", score: rand(seed, 12, 55, 95) },
-    { code: "MA201", name: "Discrete Math", score: rand(seed, 13, 55, 95) },
-    { code: "CS203", name: "DBMS", score: rand(seed, 14, 55, 95) },
-    { code: "EN201", name: "Technical Writing", score: rand(seed, 15, 60, 96) },
-  ];
-
-  const attendance = rand(seed, 1, 65, 96);
-  const assignment = rand(seed, 2, 55, 95);
-  const quiz = rand(seed, 3, 50, 92);
-  const internal = rand(seed, 4, 55, 94);
-  const participation = rand(seed, 5, 60, 95);
-  const finalScore = Math.round(
-    assignment * 0.2 + quiz * 0.2 + internal * 0.4 + participation * 0.1 + attendance * 0.1
-  );
-  const predicted = grade(finalScore);
+  const subjects = getSubjects(seed);
+  const metrics = getMetrics(seed);
+  const score = finalScore(metrics);
+  const predicted = grade(score);
 
   const radarData = [
-    { metric: "Attendance", value: attendance },
-    { metric: "Assignment", value: assignment },
-    { metric: "Quiz", value: quiz },
-    { metric: "Internal", value: internal },
-    { metric: "Participation", value: participation },
+    { metric: "Attendance", value: metrics.attendance },
+    { metric: "Assignment", value: metrics.assignment },
+    { metric: "Quiz", value: metrics.quiz },
+    { metric: "Internal", value: metrics.internal },
+    { metric: "Participation", value: metrics.participation },
   ];
 
   const recs: string[] = [];
-  if (attendance < 80) recs.push("Boost attendance to 85%+ — strongest correlation with your final grade.");
-  if (quiz < 70) recs.push("Review weekly quizzes; targeted practice can lift your final by 4–6 points.");
-  if (assignment < 70) recs.push("Submit assignments on time and request feedback from your instructor.");
-  if (participation < 70) recs.push("Speak up in class — active participation improves recall and your score.");
+  if (metrics.attendance < 80) recs.push("Boost attendance to 85%+ — strongest correlation with your final grade.");
+  if (metrics.quiz < 70) recs.push("Review weekly quizzes; targeted practice can lift your final by 4–6 points.");
+  if (metrics.assignment < 70) recs.push("Submit assignments on time and request feedback from your instructor.");
+  if (metrics.participation < 70) recs.push("Speak up in class — active participation improves recall and your score.");
   if (recs.length === 0) recs.push("Excellent work — maintain consistency and consider mentoring peers.");
+
+
 
   return (
     <div className="space-y-6">
@@ -113,7 +78,7 @@ export function StudentDashboard() {
           <div className="text-right">
             <div className="text-5xl font-bold leading-none">{predicted}</div>
             <div className="text-xs uppercase tracking-wide opacity-80">Predicted grade</div>
-            <div className="mt-1 text-sm">{finalScore}% projected final</div>
+            <div className="mt-1 text-sm">{score}% projected final</div>
           </div>
         </div>
       </section>
@@ -175,10 +140,10 @@ export function StudentDashboard() {
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: CalendarCheck, label: "Attendance", value: `${attendance}%` },
-          { icon: BookOpen, label: "Assignments", value: assignment },
-          { icon: Target, label: "Quiz Avg", value: quiz },
-          { icon: TrendingUp, label: "Internal", value: internal },
+          { icon: CalendarCheck, label: "Attendance", value: `${metrics.attendance}%` },
+          { icon: BookOpen, label: "Assignments", value: metrics.assignment },
+          { icon: Target, label: "Quiz Avg", value: metrics.quiz },
+          { icon: TrendingUp, label: "Internal", value: metrics.internal },
         ].map((m) => (
           <Card key={m.label} className="border-border" style={{ boxShadow: "var(--shadow-card)" }}>
             <CardContent className="p-5">
