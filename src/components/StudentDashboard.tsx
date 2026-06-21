@@ -4,7 +4,9 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Lightbulb, TrendingUp, CalendarCheck, BookOpen, Target } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Sparkles, Lightbulb, TrendingUp, CalendarCheck, BookOpen, Target, Mail, GraduationCap, Hash, Library } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { trendData } from "@/lib/mockData";
 
@@ -28,10 +30,40 @@ function grade(score: number) {
   if (score >= 50) return "D";
   return "F";
 }
+function ProfileRow({ icon: Icon, label, value }: { icon: typeof Mail; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2 rounded-md border border-border bg-card p-3">
+      <Icon className="mt-0.5 h-4 w-4 text-primary" />
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="truncate text-sm font-medium">{value}</p>
+      </div>
+    </div>
+  );
+}
+
 
 export function StudentDashboard() {
   const { profile, user } = useAuth();
   const seed = hash(user?.id || "demo");
+  const initials = (profile?.full_name || user?.email || "ST")
+    .split(/\s+/)
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const regNo = `REG-${(seed % 90000 + 10000)}`;
+  const branches = ["CSE", "ECE", "ME", "CE", "IT"] as const;
+  const branch = branches[seed % branches.length];
+  const semester = (seed % 8) + 1;
+
+  const subjects = [
+    { code: "CS201", name: "Data Structures", score: rand(seed, 11, 55, 95) },
+    { code: "CS202", name: "Operating Systems", score: rand(seed, 12, 55, 95) },
+    { code: "MA201", name: "Discrete Math", score: rand(seed, 13, 55, 95) },
+    { code: "CS203", name: "DBMS", score: rand(seed, 14, 55, 95) },
+    { code: "EN201", name: "Technical Writing", score: rand(seed, 15, 60, 96) },
+  ];
 
   const attendance = rand(seed, 1, 65, 96);
   const assignment = rand(seed, 2, 55, 95);
@@ -85,6 +117,61 @@ export function StudentDashboard() {
           </div>
         </div>
       </section>
+
+      {/* Profile Card */}
+      <section>
+        <Card className="border-border" style={{ boxShadow: "var(--shadow-card)" }}>
+          <CardHeader>
+            <CardTitle>My Profile</CardTitle>
+            <CardDescription>Your student account details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <Avatar className="h-20 w-20 border border-border">
+                <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 gap-3 sm:grid-cols-2">
+                <ProfileRow icon={GraduationCap} label="Full Name" value={profile?.full_name || "—"} />
+                <ProfileRow icon={Mail} label="Email" value={user?.email || "—"} />
+                <ProfileRow icon={Hash} label="Reg. Number" value={regNo} />
+                <ProfileRow icon={Library} label="Branch / Semester" value={`${branch} · Sem ${semester}`} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Subjects Area */}
+      <section>
+        <Card className="border-border" style={{ boxShadow: "var(--shadow-card)" }}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-primary" /> My Subjects
+            </CardTitle>
+            <CardDescription>Performance across enrolled subjects this semester</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {subjects.map((s) => (
+              <div key={s.code} className="space-y-2 rounded-lg border border-border bg-accent/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{s.name}</p>
+                    <p className="text-xs text-muted-foreground">{s.code}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="font-mono">{grade(s.score)}</Badge>
+                    <span className="text-sm font-semibold tabular-nums">{s.score}%</span>
+                  </div>
+                </div>
+                <Progress value={s.score} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
