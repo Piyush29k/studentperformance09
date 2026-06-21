@@ -30,6 +30,18 @@ function grade(score: number) {
   if (score >= 50) return "D";
   return "F";
 }
+function ProfileRow({ icon: Icon, label, value }: { icon: typeof Mail; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2 rounded-md border border-border bg-card p-3">
+      <Icon className="mt-0.5 h-4 w-4 text-primary" />
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="truncate text-sm font-medium">{value}</p>
+      </div>
+    </div>
+  );
+}
+
 
 export function StudentDashboard() {
   const { profile, user } = useAuth();
