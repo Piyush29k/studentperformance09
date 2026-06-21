@@ -78,7 +78,7 @@ export function StudentDashboard() {
           <div className="text-right">
             <div className="text-5xl font-bold leading-none">{predicted}</div>
             <div className="text-xs uppercase tracking-wide opacity-80">Predicted grade</div>
-            <div className="mt-1 text-sm">{finalScore}% projected final</div>
+            <div className="mt-1 text-sm">{score}% projected final</div>
           </div>
         </div>
       </section>
