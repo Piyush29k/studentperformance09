@@ -140,10 +140,10 @@ export function StudentDashboard() {
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: CalendarCheck, label: "Attendance", value: `${attendance}%` },
-          { icon: BookOpen, label: "Assignments", value: assignment },
-          { icon: Target, label: "Quiz Avg", value: quiz },
-          { icon: TrendingUp, label: "Internal", value: internal },
+          { icon: CalendarCheck, label: "Attendance", value: `${metrics.attendance}%` },
+          { icon: BookOpen, label: "Assignments", value: metrics.assignment },
+          { icon: Target, label: "Quiz Avg", value: metrics.quiz },
+          { icon: TrendingUp, label: "Internal", value: metrics.internal },
         ].map((m) => (
           <Card key={m.label} className="border-border" style={{ boxShadow: "var(--shadow-card)" }}>
             <CardContent className="p-5">
