@@ -4,7 +4,9 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Lightbulb, TrendingUp, CalendarCheck, BookOpen, Target } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Sparkles, Lightbulb, TrendingUp, CalendarCheck, BookOpen, Target, Mail, GraduationCap, Hash, Library } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { trendData } from "@/lib/mockData";
 
