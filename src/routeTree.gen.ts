@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentsRouteImport } from './routes/students'
 import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PredictionsRouteImport } from './routes/predictions'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FeaturesRouteImport } from './routes/features'
@@ -27,6 +28,11 @@ const StudentsRoute = StudentsRouteImport.update({
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PredictionsRoute = PredictionsRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
   '/predictions': typeof PredictionsRoute
+  '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/students': typeof StudentsRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
   '/predictions': typeof PredictionsRoute
+  '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/students': typeof StudentsRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
   '/predictions': typeof PredictionsRoute
+  '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/students': typeof StudentsRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/login'
     | '/predictions'
+    | '/profile'
     | '/reports'
     | '/students'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/login'
     | '/predictions'
+    | '/profile'
     | '/reports'
     | '/students'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/login'
     | '/predictions'
+    | '/profile'
     | '/reports'
     | '/students'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   LoginRoute: typeof LoginRoute
   PredictionsRoute: typeof PredictionsRoute
+  ProfileRoute: typeof ProfileRoute
   ReportsRoute: typeof ReportsRoute
   StudentsRoute: typeof StudentsRoute
 }
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/predictions': {
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   LoginRoute: LoginRoute,
   PredictionsRoute: PredictionsRoute,
+  ProfileRoute: ProfileRoute,
   ReportsRoute: ReportsRoute,
   StudentsRoute: StudentsRoute,
 }
