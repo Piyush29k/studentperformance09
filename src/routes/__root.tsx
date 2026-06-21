@@ -131,6 +131,8 @@ function AuthenticatedShell() {
       "/students": ["admin", "teacher"],
       "/predictions": ["admin", "teacher"],
       "/reports": ["admin", "teacher"],
+      "/profile": ["student"],
+      "/subjects": ["student"],
     };
     const allowed = allowedFor[pathname];
     if (allowed && !allowed.includes(primaryRole)) {
